@@ -1,18 +1,18 @@
 # Code Snippets App
 
-コードスニペットを管理・検索するための REST API サーバ。Go + Echo + GORM で構築し、ヘキサゴナルアーキテクチャ（クリーンアーキテクチャ）を採用しています。
+コードスニペットを管理・検索するための REST API サーバ。Go + Echo + GORM で構築し、クリーンアーキテクチャを採用しています。
 
 ---
 
 ## Architecture
 
-### Hexagonal Architecture (Ports & Adapters)
+### Clean Architecture
 
-本プロジェクトは **ヘキサゴナルアーキテクチャ** に基づき、ビジネスロジックを外部の技術的関心事から完全に分離しています。
+本プロジェクトは **クリーンアーキテクチャ** に基づき、ビジネスロジックを外部の技術的関心事から完全に分離しています。Domain 層に定義した Repository Interface（Port）を外側の Adapter が実装する **Ports & Adapters パターン** で依存性を逆転させ、依存の方向は **常に外側から内側** へ向かいます。
 
 ```mermaid
 graph TB
-    subgraph External["External (外部)"]
+    subgraph External["Infrastructure / External (最外層)"]
         CLIENT["HTTP Client<br/>(Browser / curl)"]
         MYSQL[("MySQL<br/>Database")]
         S3["AWS S3"]
@@ -33,7 +33,7 @@ graph TB
             TAG_SVC["TagService"]
             USER_SVC["UserService"]
         end
-        subgraph Domain["Domain 層 (中心)"]
+        subgraph Domain["Domain 層 (最内層)"]
             MODEL["Model<br/>Snippet / Tag / User"]
             REPO_IF["Repository Interface<br/>(Port)"]
             ERRORS["Domain Errors"]
@@ -43,10 +43,10 @@ graph TB
     CLIENT -->|"HTTP Request"| HANDLER
     HANDLER -->|"calls"| SNIPPET_SVC
     HANDLER -->|"calls"| TAG_SVC
-    SNIPPET_SVC -->|"uses"| REPO_IF
-    TAG_SVC -->|"uses"| REPO_IF
-    USER_SVC -->|"uses"| REPO_IF
-    REPO_IF -.->|"implemented by"| REPO_IMPL
+    SNIPPET_SVC -->|"uses Port"| REPO_IF
+    TAG_SVC -->|"uses Port"| REPO_IF
+    USER_SVC -->|"uses Port"| REPO_IF
+    REPO_IF -.->|"implemented by<br/>(依存性逆転)"| REPO_IMPL
     REPO_IMPL -->|"SQL"| MYSQL
     S3_CLIENT -->|"API"| S3
 
@@ -56,46 +56,13 @@ graph TB
     style External fill:#9b9b9b,stroke:#6b6b6b,color:#fff
 ```
 
-### Clean Architecture - レイヤー間の依存方向
+> **依存の方向**: External → Adapter → Usecase → Domain。Repository Interface (Port) は Domain 層に定義し、その実装 (Adapter) は外側に置くことで **依存性逆転の原則** を実現しています。
 
-依存の方向は **常に外側から内側** へ向かいます。内側の層は外側の層を一切知りません。
-
-```mermaid
-graph LR
-    subgraph L4["Infrastructure"]
-        DB["database.NewDB"]
-        AWS["aws.S3Client"]
-    end
-
-    subgraph L3["Interface Adapter"]
-        H["Handler"]
-        RI["Repository Impl"]
-        MW["Middleware"]
-    end
-
-    subgraph L2["Usecase"]
-        SS["SnippetService"]
-        TS["TagService"]
-        US["UserService"]
-    end
-
-    subgraph L1["Domain (最内層)"]
-        M["Model"]
-        RP["Repository Interface"]
-        E["Errors"]
-    end
-
-    L4 --> L3
-    L3 --> L2
-    L2 --> L1
-
-    RI -.->|"implements"| RP
-
-    style L1 fill:#4a90d9,stroke:#2c5f8a,color:#fff
-    style L2 fill:#7ab648,stroke:#5a8a38,color:#fff
-    style L3 fill:#f5a623,stroke:#c4841c,color:#fff
-    style L4 fill:#9b9b9b,stroke:#6b6b6b,color:#fff
-```
+> [!NOTE]
+> **本プロジェクトにおける設計上の但し書き**
+> - **Domain Model に `json` タグが存在します**: 厳密にはプレゼンテーション層の関心事ですが、現状 API レスポンスと Domain Model の構造がほぼ一致しているため、DTO 変換の冗長さを避けて Domain Model に直接付与しています。API レスポンスの形が Domain Model と乖離し始めた時点で、Handler 層に専用の Response DTO を導入してください。
+> - **認証・認可は未実装です**: Handler 内の UserID はダミー値 (`0`) です。実運用では認証ミドルウェアから取得する設計に置き換えてください。
+> - **S3Client は定義のみで未使用です**: Infrastructure 層に AWS S3 クライアントの interface が存在しますが、DI に組み込まれておらず、どこからも呼ばれていません。
 
 ### リクエストフロー (シーケンス図)
 
@@ -128,7 +95,7 @@ sequenceDiagram
     H-->>C: JSON Response
 ```
 
-### Dependency Injection (Google Wire)
+### Dependency Injection (手動DI)
 
 ```mermaid
 graph TD
@@ -192,9 +159,7 @@ graph TD
 ├── app/
 │   ├── config/                 # 環境変数の読み込み
 │   │   └── config.go
-│   ├── di/                     # Dependency Injection (Google Wire)
-│   │   ├── wire.go
-│   │   ├── wire_gen.go
+│   ├── di/                     # Dependency Injection (手動DI)
 │   │   └── service_container.go
 │   ├── domain/                 # Domain 層 (最内層)
 │   │   ├── model/              #   エンティティ: Snippet, Tag, User
@@ -249,7 +214,7 @@ graph TD
 | Language | Go 1.23 |
 | HTTP Framework | Echo v4 |
 | ORM | GORM (MySQL) |
-| DI | Google Wire |
+| DI | Manual (コンストラクタ注入) |
 | Logging | log/slog (JSON) |
 | Validation | go-playground/validator v10 |
 | Concurrency | golang.org/x/sync/errgroup |
