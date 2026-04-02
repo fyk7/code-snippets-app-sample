@@ -1,8 +1,9 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/url"
 
 	"github.com/fyk7/code-snippets-app/app/config"
@@ -25,8 +26,15 @@ func NewDB(cfg *config.Config) *gorm.DB {
 	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
 	dbConn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("failed to connect to database", "error", err)
+		panic(err)
 	}
 
+	slog.Info("database connection established")
 	return dbConn
+}
+
+// SQLDBFromGorm extracts the underlying *sql.DB for lifecycle management.
+func SQLDBFromGorm(db *gorm.DB) (*sql.DB, error) {
+	return db.DB()
 }

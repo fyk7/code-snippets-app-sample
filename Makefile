@@ -1,21 +1,31 @@
 BINARY=binary
-test: 
+
+test:
 	go test -v -cover -covermode=atomic ./...
 
-local-build:
-	go build -o ${BINARY} cmd/main.go
+test-short:
+	go test -short ./...
 
-unittest:
-	go test -short  ./...
+test-coverage:
+	go test -v -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report: coverage.html"
+
+local-build:
+	go build -o ${BINARY} ./cmd
 
 clean:
 	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
+	rm -f coverage.out coverage.html
 
 init:
 	go mod tidy
 
+vet:
+	go vet ./...
+
 run:
-	go run cmd/main.go
+	go run ./cmd
 
 docker-build:
 	docker build -t code-snippets-app .
@@ -27,10 +37,10 @@ db-stop:
 	docker-compose down
 
 lint-prepare:
-	@echo "Installing golangci-lint" 
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s latest
+	@echo "Installing golangci-lint"
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s latest
 
 lint:
 	./bin/golangci-lint run ./...
 
-.PHONY: clean install unittest init build run docker-build db-stardber-stop vendor lint-prepare lint
+.PHONY: test test-short test-coverage local-build clean init vet run docker-build db-start db-stop lint-prepare lint

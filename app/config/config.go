@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"log/slog"
 	"os"
 	"strconv"
 	"time"
@@ -21,14 +21,14 @@ type Config struct {
 }
 
 func LoadConf() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if err := godotenv.Load(); err != nil {
+		slog.Warn("no .env file found, using environment variables")
 	}
 	timeOutStr := os.Getenv("TIMEOUT_SECOND")
 	timeOut, err := strconv.Atoi(timeOutStr)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("invalid TIMEOUT_SECOND", "value", timeOutStr, "error", err)
+		panic(err)
 	}
 	return &Config{
 		AppTimeOut: time.Duration(timeOut) * time.Second,
