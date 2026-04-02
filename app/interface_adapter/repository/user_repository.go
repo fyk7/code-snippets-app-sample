@@ -19,108 +19,87 @@ func NewUserRepository(db *gorm.DB) repository.UserRepository {
 	}
 }
 
-func (sr *userRepository) GetAll(ctx context.Context) ([]model.User, error) {
-	users := []model.User{}
+func (ur *userRepository) GetAll(ctx context.Context) ([]model.User, error) {
+	var users []model.User
 	query := `SELECT * FROM user`
-	if err := sr.Conn.Raw(query).Scan(&users).Error; err != nil {
-		return nil, err
+	if err := ur.Conn.WithContext(ctx).Raw(query).Scan(&users).Error; err != nil {
+		return nil, toDomainError(err)
 	}
-
 	return users, nil
 }
 
-func (sr *userRepository) GetByID(ctx context.Context, userID uint64) (model.User, error) {
-	snippet := model.User{}
+func (ur *userRepository) GetByID(ctx context.Context, userID uint64) (model.User, error) {
+	var user model.User
 	query := `
-	Select
-	  *
-	FROM
-	  user
-	WHERE
-	  user_id = @userID
+	SELECT *
+	FROM user
+	WHERE user_id = @userID
 	`
-	bindParams := map[string]interface{}{
+	bindParams := map[string]any{
 		"userID": userID,
 	}
-	if err := sr.Conn.Raw(query, bindParams).Scan(&snippet).Error; err != nil {
-		return model.User{}, err
+	if err := ur.Conn.WithContext(ctx).Raw(query, bindParams).Scan(&user).Error; err != nil {
+		return model.User{}, toDomainError(err)
 	}
-
-	return snippet, nil
+	return user, nil
 }
 
-func (sr *userRepository) FindByName(ctx context.Context, userName string) ([]model.User, error) {
-	users := []model.User{}
+func (ur *userRepository) FindByName(ctx context.Context, userName string) ([]model.User, error) {
+	var users []model.User
 	query := `
-	Select
-	  *
-	FROM
-	  user
-	WHERE
-	  user_name LIKE '%@userName%'
+	SELECT *
+	FROM user
+	WHERE user_name LIKE CONCAT('%', @userName, '%')
 	`
-	bindParams := map[string]interface{}{
+	bindParams := map[string]any{
 		"userName": userName,
 	}
-	if err := sr.Conn.Raw(query, bindParams).Scan(&users).Error; err != nil {
-		return nil, err
+	if err := ur.Conn.WithContext(ctx).Raw(query, bindParams).Scan(&users).Error; err != nil {
+		return nil, toDomainError(err)
 	}
-
 	return users, nil
 }
 
-func (sr *userRepository) Create(ctx context.Context, user model.User) error {
+func (ur *userRepository) Create(ctx context.Context, user model.User) error {
 	query := `
-	INSERT INTO snippet (
-	  user_name,
-	  is_superuser,
-	  email,
-	  created_at,
-	  updated_at,
+	INSERT INTO user (
+	  user_name, is_superuser, email, created_at, updated_at
 	) VALUES (
-	  @userName,
-	  @isSuperUser,
-	  @email,
-	  @now,
-	  @now,
-	);
+	  @userName, @isSuperUser, @email, @now, @now
+	)
 	`
-	bindParams := map[string]interface{}{
+	bindParams := map[string]any{
 		"userName":    user.UserName,
 		"isSuperUser": user.IsSuperUser,
 		"email":       user.Email,
 		"now":         time.Now(),
 	}
-	if err := sr.Conn.Exec(query, bindParams).Error; err != nil {
-		return err
+	if err := ur.Conn.WithContext(ctx).Exec(query, bindParams).Error; err != nil {
+		return toDomainError(err)
 	}
-
 	return nil
 }
 
-func (sr *userRepository) Update(ctx context.Context, user model.User) error {
+func (ur *userRepository) Update(ctx context.Context, user model.User) error {
 	query := `
-	UPDATE
-	  user
+	UPDATE user
 	SET
 	  user_name = @userName,
-	  is_superuser = @IsSuperUser,
+	  is_superuser = @isSuperUser,
 	  email = @email,
 	  updated_at = @updatedAt,
 	  updated_by = @userID
-	WHERE
-	  user_id = @userID;
+	WHERE user_id = @userID
 	`
-	bindParams := map[string]interface{}{
+	bindParams := map[string]any{
 		"userID":      user.UserID,
 		"userName":    user.UserName,
-		"IsSuperUser": user.IsSuperUser,
+		"isSuperUser": user.IsSuperUser,
 		"email":       user.Email,
 		"updatedAt":   time.Now(),
 	}
-	if err := sr.Conn.Exec(query, bindParams).Error; err != nil {
-		return err
+	if err := ur.Conn.WithContext(ctx).Exec(query, bindParams).Error; err != nil {
+		return toDomainError(err)
 	}
-
 	return nil
 }

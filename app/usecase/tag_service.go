@@ -31,43 +31,43 @@ func (ts *tagService) List(ctx context.Context) ([]model.Tag, error) {
 	ctx, cancel := context.WithTimeout(ctx, ts.contextTimeout)
 	defer cancel()
 
-	snippets, err := ts.repo.GetAll(ctx)
+	tags, err := ts.repo.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return snippets, nil
+	return tags, nil
 }
 
 func (ts *tagService) GetByID(ctx context.Context, id uint64) (model.Tag, error) {
 	ctx, cancel := context.WithTimeout(ctx, ts.contextTimeout)
 	defer cancel()
 
-	snippet, err := ts.repo.GetByID(ctx, id)
+	tag, err := ts.repo.GetByID(ctx, id)
 	if err != nil {
 		return model.Tag{}, err
 	}
 
-	return snippet, nil
+	return tag, nil
 }
 
 func (ts *tagService) GetByKeyWord(ctx context.Context, keyword string) ([]model.Tag, error) {
 	ctx, cancel := context.WithTimeout(ctx, ts.contextTimeout)
 	defer cancel()
 
-	snippets, err := ts.repo.FindByKeyWord(ctx, keyword)
+	tags, err := ts.repo.FindByKeyWord(ctx, keyword)
 	if err != nil {
 		return nil, err
 	}
 
-	return snippets, nil
+	return tags, nil
 }
 
-func (ts *tagService) Create(ctx context.Context, snippet model.Tag, UserID uint64) error {
+func (ts *tagService) Create(ctx context.Context, tag model.Tag, UserID uint64) error {
 	ctx, cancel := context.WithTimeout(ctx, ts.contextTimeout)
 	defer cancel()
 
-	if err := ts.repo.Create(ctx, snippet, UserID); err != nil {
+	if err := ts.repo.Create(ctx, tag, UserID); err != nil {
 		return err
 	}
 

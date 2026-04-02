@@ -3,8 +3,8 @@ package model
 import "errors"
 
 var (
-	ErrInternalServerError = errors.New("Internal Server Error")
-	ErrNotFound            = errors.New("Your requested Item is not found")
-	ErrConflict            = errors.New("Your Item already exist")
-	ErrBadParamInput       = errors.New("Given Param is not valid")
+	ErrInternalServerError = errors.New("internal server error")
+	ErrNotFound            = errors.New("requested item is not found")
+	ErrConflict            = errors.New("item already exists")
+	ErrBadParamInput       = errors.New("given param is not valid")
 )

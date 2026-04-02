@@ -21,80 +21,62 @@ func NewTagRepository(db *gorm.DB) repository.TagRepository {
 }
 
 func (tr *tagRepository) GetAll(ctx context.Context) ([]model.Tag, error) {
-	tags := []model.Tag{}
+	var tags []model.Tag
 	query := `SELECT * FROM tag`
-	if err := tr.Conn.Raw(query).Scan(&tags).Error; err != nil {
-		return nil, err
+	if err := tr.Conn.WithContext(ctx).Raw(query).Scan(&tags).Error; err != nil {
+		return nil, toDomainError(err)
 	}
-
 	return tags, nil
 }
 
 func (tr *tagRepository) GetByID(ctx context.Context, tagID uint64) (model.Tag, error) {
-	tag := model.Tag{}
+	var tag model.Tag
 	query := `
-	Select
-	  *
-	FROM
-	  snippet
-	WHERE
-	  tag_id = @tagID
+	SELECT *
+	FROM tag
+	WHERE tag_id = @tagID
 	`
-	bindParams := map[string]interface{}{
+	bindParams := map[string]any{
 		"tagID": tagID,
 	}
-	if err := tr.Conn.Raw(query, bindParams).Scan(&tag).Error; err != nil {
-		return model.Tag{}, err
+	if err := tr.Conn.WithContext(ctx).Raw(query, bindParams).Scan(&tag).Error; err != nil {
+		return model.Tag{}, toDomainError(err)
 	}
-
 	return tag, nil
 }
 
 func (tr *tagRepository) FindByKeyWord(ctx context.Context, keyword string) ([]model.Tag, error) {
-	tags := []model.Tag{}
+	var tags []model.Tag
 	query := `
-	Select
-	  *
-	FROM
-	  snippet
-	WHERE
-	  tag_name LIKE '%@keyword%'
+	SELECT *
+	FROM tag
+	WHERE tag_name LIKE CONCAT('%', @keyword, '%')
 	`
-	bindParams := map[string]interface{}{
+	bindParams := map[string]any{
 		"keyword": keyword,
 	}
-	if err := tr.Conn.Raw(query, bindParams).Scan(&tags).Error; err != nil {
-		return nil, err
+	if err := tr.Conn.WithContext(ctx).Raw(query, bindParams).Scan(&tags).Error; err != nil {
+		return nil, toDomainError(err)
 	}
-
 	return tags, nil
 }
 
-func (tr *tagRepository) Create(ctx context.Context, tag model.Tag, UserID uint64) error {
+func (tr *tagRepository) Create(ctx context.Context, tag model.Tag, userID uint64) error {
 	query := `
 	INSERT INTO tag (
-	  tag_name,
-	  created_at,
-	  created_by,
-	  updated_at,
-	  updated_by
+	  tag_name, created_at, created_by, updated_at, updated_by
 	) VALUES (
-	  @tagName,
-	  @now,
-	  @UserID,
-	  @now,
-	  @UserID
-	);
+	  @tagName, @now, @userID, @now, @userID
+	)
 	`
 	now := time.Now()
-	bindParams := map[string]interface{}{
+	bindParams := map[string]any{
 		"tagName": tag.TagName,
 		"now":     now,
-		"UserID":  strconv.Itoa(int(UserID)),
+		"userID":  strconv.FormatUint(userID, 10),
 	}
-	if err := tr.Conn.Exec(query, bindParams).Error; err != nil {
-		return err
+	if err := tr.Conn.WithContext(ctx).Exec(query, bindParams).Error; err != nil {
+		return toDomainError(err)
 	}
-
 	return nil
 }

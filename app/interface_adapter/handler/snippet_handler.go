@@ -8,15 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type SnippetHandler interface {
-	GetSnippetByID(c echo.Context) error
-	FindSnippetByKeyWord(c echo.Context) error
-	ListByTag(c echo.Context) error
-	PostSnippet(c echo.Context) error
-	AssociateWithTag(c echo.Context) error
-	PutSnippet(c echo.Context) error
-}
-
 type snippetHandler struct {
 	snippetService usecase.SnippetService
 }
@@ -71,42 +62,52 @@ func (h *snippetHandler) ListByTag(c echo.Context) error {
 func (h *snippetHandler) PostSnippet(c echo.Context) error {
 	var req SnippetPostReq
 	if err := c.Bind(&req); err != nil {
-		handleError(c, err)
-	}
-	ctx := c.Request().Context()
-	UserID := 00000 // dummy user
-	if err := h.snippetService.Create(ctx, req.ConvertToModel(), uint64(UserID)); err != nil {
 		return handleError(c, err)
 	}
-	return c.JSON(http.StatusCreated, "Successfuly Created.")
+	if err := ValidRequest(req); err != nil {
+		return handleError(c, err)
+	}
+	ctx := c.Request().Context()
+	userID := uint64(0) // dummy user
+	if err := h.snippetService.Create(ctx, req.ConvertToModel(), userID); err != nil {
+		return handleError(c, err)
+	}
+	return c.JSON(http.StatusCreated, OKResponseBody{Messages: []string{"Successfully Created."}})
+}
+
+type AssociateWithTagReq struct {
+	SnippetID int64 `json:"snippet_id" validate:"required"`
+	TagID     int64 `json:"tag_id" validate:"required"`
 }
 
 func (h *snippetHandler) AssociateWithTag(c echo.Context) error {
+	var req AssociateWithTagReq
+	if err := c.Bind(&req); err != nil {
+		return handleError(c, err)
+	}
+	if err := ValidRequest(req); err != nil {
+		return handleError(c, err)
+	}
 	ctx := c.Request().Context()
-	snippetID, err := strconv.Atoi(c.Param("snippet_id"))
-	if err != nil {
+	userID := int64(0)
+	if err := h.snippetService.AssociateWithTag(ctx, req.SnippetID, req.TagID, userID); err != nil {
 		return handleError(c, err)
 	}
-	tagID, err := strconv.Atoi(c.Param("tag_id"))
-	if err != nil {
-		return handleError(c, err)
-	}
-	UserID := 00000
-	if err := h.snippetService.AssociateWithTag(ctx, int64(snippetID), int64(tagID), int64(UserID)); err != nil {
-		return handleError(c, err)
-	}
-	return c.JSON(http.StatusCreated, "Successfuly Created.")
+	return c.JSON(http.StatusCreated, OKResponseBody{Messages: []string{"Successfully Created."}})
 }
 
 func (h *snippetHandler) PutSnippet(c echo.Context) error {
 	var req SnippetPutReq
 	if err := c.Bind(&req); err != nil {
-		handleError(c, err)
-	}
-	ctx := c.Request().Context()
-	UserID := 00000
-	if err := h.snippetService.Update(ctx, req.ConvertToModel(), uint64(UserID)); err != nil {
 		return handleError(c, err)
 	}
-	return c.JSON(http.StatusCreated, "Successfuly Created.")
+	if err := ValidRequest(req); err != nil {
+		return handleError(c, err)
+	}
+	ctx := c.Request().Context()
+	userID := uint64(0)
+	if err := h.snippetService.Update(ctx, req.ConvertToModel(), userID); err != nil {
+		return handleError(c, err)
+	}
+	return c.JSON(http.StatusOK, OKResponseBody{Messages: []string{"Successfully Updated."}})
 }

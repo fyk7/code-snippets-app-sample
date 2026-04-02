@@ -8,12 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type TagHandler interface {
-	GetTagByID(c echo.Context) error
-	FindTagByKeyWord(c echo.Context)
-	PostTag(c echo.Context) error
-}
-
 type tagHandler struct {
 	tagService usecase.TagService
 }
@@ -53,12 +47,15 @@ func (h *tagHandler) FindTagByKeyWord(c echo.Context) error {
 func (h *tagHandler) PostTag(c echo.Context) error {
 	var req TagPostReq
 	if err := c.Bind(&req); err != nil {
-		handleError(c, err)
-	}
-	ctx := c.Request().Context()
-	UserID := 00000
-	if err := h.tagService.Create(ctx, req.ConvertToModel(), uint64(UserID)); err != nil {
 		return handleError(c, err)
 	}
-	return c.JSON(http.StatusCreated, "Successfuly Created.")
+	if err := ValidRequest(req); err != nil {
+		return handleError(c, err)
+	}
+	ctx := c.Request().Context()
+	userID := uint64(0)
+	if err := h.tagService.Create(ctx, req.ConvertToModel(), userID); err != nil {
+		return handleError(c, err)
+	}
+	return c.JSON(http.StatusCreated, OKResponseBody{Messages: []string{"Successfully Created."}})
 }

@@ -32,54 +32,54 @@ func (us *userService) List(ctx context.Context) ([]model.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, us.contextTimeout)
 	defer cancel()
 
-	snippets, err := us.repo.GetAll(ctx)
+	users, err := us.repo.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return snippets, nil
+	return users, nil
 }
 
 func (us *userService) GetByKeyWord(ctx context.Context, userName string) ([]model.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, us.contextTimeout)
 	defer cancel()
 
-	snippets, err := us.repo.FindByName(ctx, userName)
+	users, err := us.repo.FindByName(ctx, userName)
 	if err != nil {
 		return nil, err
 	}
 
-	return snippets, nil
+	return users, nil
 }
 
 func (us *userService) GetByID(ctx context.Context, userID uint64) (model.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, us.contextTimeout)
 	defer cancel()
 
-	snippet, err := us.repo.GetByID(ctx, userID)
+	user, err := us.repo.GetByID(ctx, userID)
 	if err != nil {
 		return model.User{}, err
 	}
 
-	return snippet, nil
+	return user, nil
 }
 
-func (us *userService) Create(ctx context.Context, snippet model.User) error {
+func (us *userService) Create(ctx context.Context, user model.User) error {
 	ctx, cancel := context.WithTimeout(ctx, us.contextTimeout)
 	defer cancel()
 
-	if err := us.repo.Create(ctx, snippet); err != nil {
+	if err := us.repo.Create(ctx, user); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (us *userService) Update(ctx context.Context, snippet model.User) error {
+func (us *userService) Update(ctx context.Context, user model.User) error {
 	ctx, cancel := context.WithTimeout(ctx, us.contextTimeout)
 	defer cancel()
 
-	if err := us.repo.Create(ctx, snippet); err != nil {
+	if err := us.repo.Update(ctx, user); err != nil {
 		return err
 	}
 
