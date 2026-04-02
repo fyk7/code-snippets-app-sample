@@ -1,0 +1,8 @@
+type: object
+properties:
+  tag_name:
+    type: string
+    description: タグ名
+    example: "golang"
+required:
+  - tag_name

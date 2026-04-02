@@ -1,0 +1,11 @@
+type: object
+properties:
+  messages:
+    type: array
+    items:
+      type: string
+    description: エラーメッセージのリスト
+    example:
+      - "requested item is not found"
+required:
+  - messages

@@ -1,0 +1,32 @@
+type: object
+properties:
+  tag_id:
+    type: integer
+    format: uint64
+    description: タグID
+    example: 1
+  tag_name:
+    type: string
+    description: タグ名
+    example: "golang"
+  created_at:
+    type: string
+    format: date-time
+    description: 作成日時
+  created_by:
+    type: integer
+    format: uint64
+    description: 作成者のユーザーID
+  updated_at:
+    type: string
+    format: date-time
+    description: 更新日時
+  updated_by:
+    type: integer
+    format: uint64
+    description: 更新者のユーザーID
+required:
+  - tag_id
+  - tag_name
+  - created_at
+  - updated_at

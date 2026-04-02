@@ -1,0 +1,39 @@
+get:
+  operationId: getTagByID
+  summary: タグをIDで取得
+  description: 指定されたIDのタグを返します
+  tags:
+    - Tags
+  security: []
+  parameters:
+    - name: tag_id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: タグID
+  responses:
+    '200':
+      description: タグ取得成功
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/tags/Tag.yaml'
+    '400':
+      description: パラメータ不正
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '404':
+      description: タグが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'

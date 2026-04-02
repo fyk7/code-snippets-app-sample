@@ -1,0 +1,15 @@
+type: object
+properties:
+  snippet_id:
+    type: integer
+    format: int64
+    description: 紐付け対象のスニペットID
+    example: 1
+  tag_id:
+    type: integer
+    format: int64
+    description: 紐付け対象のタグID
+    example: 5
+required:
+  - snippet_id
+  - tag_id

@@ -1,0 +1,38 @@
+post:
+  operationId: associateSnippetWithTag
+  summary: スニペットとタグの紐付け
+  description: スニペットにタグを紐付けます
+  tags:
+    - Snippets
+  security: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/snippets/AssociateWithTagRequest.yaml'
+  responses:
+    '201':
+      description: 紐付け成功
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/OKResponse.yaml'
+    '400':
+      description: バリデーションエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '409':
+      description: 既に紐付け済み
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'

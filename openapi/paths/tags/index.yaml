@@ -1,0 +1,38 @@
+post:
+  operationId: createTag
+  summary: タグ作成
+  description: 新しいタグを作成します
+  tags:
+    - Tags
+  security: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/tags/TagCreateRequest.yaml'
+  responses:
+    '201':
+      description: 作成成功
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/OKResponse.yaml'
+    '400':
+      description: バリデーションエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '409':
+      description: タグ名が既に存在する
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'

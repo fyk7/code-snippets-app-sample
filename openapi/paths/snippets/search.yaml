@@ -1,0 +1,36 @@
+get:
+  operationId: searchSnippets
+  summary: キーワードでスニペット検索
+  description: タイトルまたは説明にキーワードを含むスニペットを検索します
+  tags:
+    - Snippets
+  security: []
+  parameters:
+    - name: snippet_keyword
+      in: query
+      required: false
+      schema:
+        type: string
+      description: 検索キーワード
+      example: "error handling"
+  responses:
+    '200':
+      description: 検索結果
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/snippets/Snippet.yaml'
+    '400':
+      description: パラメータ不正
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'

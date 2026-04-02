@@ -1,0 +1,28 @@
+type: object
+properties:
+  snippet_id:
+    type: integer
+    format: int64
+    description: 更新対象のスニペットID
+    example: 1
+  title:
+    type: string
+    description: スニペットのタイトル
+    example: "Go Error Handling (Updated)"
+  description:
+    type: string
+    description: スニペットの説明
+    example: "更新されたエラーハンドリングの説明"
+  body:
+    type: string
+    description: コードスニペット本文
+    example: "if err != nil { return fmt.Errorf(\"failed: %w\", err) }"
+  programing_language:
+    type: string
+    description: プログラミング言語
+    example: "go"
+required:
+  - snippet_id
+  - title
+  - body
+  - programing_language

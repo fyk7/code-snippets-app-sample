@@ -1,0 +1,39 @@
+get:
+  operationId: getSnippetByID
+  summary: スニペットをIDで取得
+  description: 指定されたIDのスニペットを返します
+  tags:
+    - Snippets
+  security: []
+  parameters:
+    - name: snippet_id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: スニペットID
+  responses:
+    '200':
+      description: スニペット取得成功
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/snippets/Snippet.yaml'
+    '400':
+      description: パラメータ不正
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '404':
+      description: スニペットが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'

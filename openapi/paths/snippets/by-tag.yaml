@@ -1,0 +1,35 @@
+get:
+  operationId: listSnippetsByTag
+  summary: タグに紐づくスニペット一覧
+  description: 指定されたタグIDに紐づくスニペットの一覧を返します
+  tags:
+    - Snippets
+  security: []
+  parameters:
+    - name: tag_id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: タグID
+  responses:
+    '200':
+      description: スニペット一覧
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/snippets/Snippet.yaml'
+    '400':
+      description: パラメータ不正
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'

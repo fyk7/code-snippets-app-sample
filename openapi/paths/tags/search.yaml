@@ -1,0 +1,36 @@
+get:
+  operationId: searchTags
+  summary: キーワードでタグ検索
+  description: タグ名にキーワードを含むタグを検索します
+  tags:
+    - Tags
+  security: []
+  parameters:
+    - name: tag_keyword
+      in: query
+      required: false
+      schema:
+        type: string
+      description: 検索キーワード
+      example: "golang"
+  responses:
+    '200':
+      description: 検索結果
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/tags/Tag.yaml'
+    '400':
+      description: パラメータ不正
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'

@@ -1,0 +1,70 @@
+openapi: 3.0.0
+info:
+  title: Code Snippets API
+  version: 1.0.0
+  description: コードスニペットを管理・検索するための REST API
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+
+security: []
+
+components:
+  schemas:
+    # Common schemas
+    Error:
+      $ref: './schemas/common/Error.yaml'
+    OKResponse:
+      $ref: './schemas/common/OKResponse.yaml'
+
+    # Snippet schemas
+    Snippet:
+      $ref: './schemas/snippets/Snippet.yaml'
+    SnippetCreateRequest:
+      $ref: './schemas/snippets/SnippetCreateRequest.yaml'
+    SnippetUpdateRequest:
+      $ref: './schemas/snippets/SnippetUpdateRequest.yaml'
+    AssociateWithTagRequest:
+      $ref: './schemas/snippets/AssociateWithTagRequest.yaml'
+
+    # Tag schemas
+    Tag:
+      $ref: './schemas/tags/Tag.yaml'
+    TagCreateRequest:
+      $ref: './schemas/tags/TagCreateRequest.yaml'
+
+paths:
+  # Snippet endpoints
+  /snippets:
+    $ref: './paths/snippets/index.yaml'
+  /snippets/{snippet_id}:
+    $ref: './paths/snippets/snippetId.yaml'
+  /snippets/search:
+    $ref: './paths/snippets/search.yaml'
+  /snippets/tags/{tag_id}:
+    $ref: './paths/snippets/by-tag.yaml'
+  /snippets/associate:
+    $ref: './paths/snippets/associate.yaml'
+
+  # Tag endpoints
+  /tags:
+    $ref: './paths/tags/index.yaml'
+  /tags/{tag_id}:
+    $ref: './paths/tags/tagId.yaml'
+  /tags/search:
+    $ref: './paths/tags/search.yaml'
+
+tags:
+  - name: Snippets
+    description: コードスニペット関連のAPI
+  - name: Tags
+    description: タグ関連のAPI

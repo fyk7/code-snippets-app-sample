@@ -1,0 +1,46 @@
+type: object
+properties:
+  snipet_id:
+    type: integer
+    format: uint64
+    description: スニペットID
+    example: 1
+  title:
+    type: string
+    description: スニペットのタイトル
+    example: "Go Error Handling"
+  description:
+    type: string
+    description: スニペットの説明
+    example: "Goでのエラーハンドリングのベストプラクティス"
+  body:
+    type: string
+    description: コードスニペット本文
+    example: "if err != nil { return fmt.Errorf(\"failed: %w\", err) }"
+  programing_language:
+    type: string
+    description: プログラミング言語
+    example: "go"
+  created_at:
+    type: string
+    format: date-time
+    description: 作成日時
+  created_by:
+    type: integer
+    format: uint64
+    description: 作成者のユーザーID
+  updated_at:
+    type: string
+    format: date-time
+    description: 更新日時
+  updated_by:
+    type: integer
+    format: uint64
+    description: 更新者のユーザーID
+required:
+  - snipet_id
+  - title
+  - body
+  - programing_language
+  - created_at
+  - updated_at

@@ -1,0 +1,539 @@
+openapi: 3.0.0
+info:
+  title: Code Snippets API
+  version: 1.0.0
+  description: コードスニペットを管理・検索するための REST API
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+security: []
+tags:
+  - name: Snippets
+    description: コードスニペット関連のAPI
+  - name: Tags
+    description: タグ関連のAPI
+paths:
+  /snippets:
+    post:
+      operationId: createSnippet
+      summary: スニペット作成
+      description: 新しいコードスニペットを作成します
+      tags:
+        - Snippets
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SnippetCreateRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OKResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: updateSnippet
+      summary: スニペット更新
+      description: 既存のコードスニペットを更新します
+      tags:
+        - Snippets
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SnippetUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OKResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /snippets/{snippet_id}:
+    get:
+      operationId: getSnippetByID
+      summary: スニペットをIDで取得
+      description: 指定されたIDのスニペットを返します
+      tags:
+        - Snippets
+      security: []
+      parameters:
+        - name: snippet_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: スニペットID
+      responses:
+        '200':
+          description: スニペット取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Snippet'
+        '400':
+          description: パラメータ不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: スニペットが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /snippets/search:
+    get:
+      operationId: searchSnippets
+      summary: キーワードでスニペット検索
+      description: タイトルまたは説明にキーワードを含むスニペットを検索します
+      tags:
+        - Snippets
+      security: []
+      parameters:
+        - name: snippet_keyword
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 検索キーワード
+          example: error handling
+      responses:
+        '200':
+          description: 検索結果
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Snippet'
+        '400':
+          description: パラメータ不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /snippets/tags/{tag_id}:
+    get:
+      operationId: listSnippetsByTag
+      summary: タグに紐づくスニペット一覧
+      description: 指定されたタグIDに紐づくスニペットの一覧を返します
+      tags:
+        - Snippets
+      security: []
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: タグID
+      responses:
+        '200':
+          description: スニペット一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Snippet'
+        '400':
+          description: パラメータ不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /snippets/associate:
+    post:
+      operationId: associateSnippetWithTag
+      summary: スニペットとタグの紐付け
+      description: スニペットにタグを紐付けます
+      tags:
+        - Snippets
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssociateWithTagRequest'
+      responses:
+        '201':
+          description: 紐付け成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OKResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: 既に紐付け済み
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /tags:
+    post:
+      operationId: createTag
+      summary: タグ作成
+      description: 新しいタグを作成します
+      tags:
+        - Tags
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreateRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OKResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: タグ名が既に存在する
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /tags/{tag_id}:
+    get:
+      operationId: getTagByID
+      summary: タグをIDで取得
+      description: 指定されたIDのタグを返します
+      tags:
+        - Tags
+      security: []
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: タグID
+      responses:
+        '200':
+          description: タグ取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          description: パラメータ不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: タグが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /tags/search:
+    get:
+      operationId: searchTags
+      summary: キーワードでタグ検索
+      description: タグ名にキーワードを含むタグを検索します
+      tags:
+        - Tags
+      security: []
+      parameters:
+        - name: tag_keyword
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 検索キーワード
+          example: golang
+      responses:
+        '200':
+          description: 検索結果
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '400':
+          description: パラメータ不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: string
+          description: エラーメッセージのリスト
+          example:
+            - requested item is not found
+      required:
+        - messages
+    OKResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: string
+          description: 成功メッセージのリスト
+          example:
+            - Successfully Created.
+      required:
+        - messages
+    Snippet:
+      type: object
+      properties:
+        snipet_id:
+          type: integer
+          format: uint64
+          description: スニペットID
+          example: 1
+        title:
+          type: string
+          description: スニペットのタイトル
+          example: Go Error Handling
+        description:
+          type: string
+          description: スニペットの説明
+          example: Goでのエラーハンドリングのベストプラクティス
+        body:
+          type: string
+          description: コードスニペット本文
+          example: 'if err != nil { return fmt.Errorf("failed: %w", err) }'
+        programing_language:
+          type: string
+          description: プログラミング言語
+          example: go
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        created_by:
+          type: integer
+          format: uint64
+          description: 作成者のユーザーID
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+        updated_by:
+          type: integer
+          format: uint64
+          description: 更新者のユーザーID
+      required:
+        - snipet_id
+        - title
+        - body
+        - programing_language
+        - created_at
+        - updated_at
+    SnippetCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: スニペットのタイトル
+          example: Go Error Handling
+        description:
+          type: string
+          description: スニペットの説明
+          example: Goでのエラーハンドリングのベストプラクティス
+        body:
+          type: string
+          description: コードスニペット本文
+          example: 'if err != nil { return fmt.Errorf("failed: %w", err) }'
+        programing_language:
+          type: string
+          description: プログラミング言語
+          example: go
+      required:
+        - title
+        - body
+        - programing_language
+    SnippetUpdateRequest:
+      type: object
+      properties:
+        snippet_id:
+          type: integer
+          format: int64
+          description: 更新対象のスニペットID
+          example: 1
+        title:
+          type: string
+          description: スニペットのタイトル
+          example: Go Error Handling (Updated)
+        description:
+          type: string
+          description: スニペットの説明
+          example: 更新されたエラーハンドリングの説明
+        body:
+          type: string
+          description: コードスニペット本文
+          example: 'if err != nil { return fmt.Errorf("failed: %w", err) }'
+        programing_language:
+          type: string
+          description: プログラミング言語
+          example: go
+      required:
+        - snippet_id
+        - title
+        - body
+        - programing_language
+    AssociateWithTagRequest:
+      type: object
+      properties:
+        snippet_id:
+          type: integer
+          format: int64
+          description: 紐付け対象のスニペットID
+          example: 1
+        tag_id:
+          type: integer
+          format: int64
+          description: 紐付け対象のタグID
+          example: 5
+      required:
+        - snippet_id
+        - tag_id
+    Tag:
+      type: object
+      properties:
+        tag_id:
+          type: integer
+          format: uint64
+          description: タグID
+          example: 1
+        tag_name:
+          type: string
+          description: タグ名
+          example: golang
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        created_by:
+          type: integer
+          format: uint64
+          description: 作成者のユーザーID
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+        updated_by:
+          type: integer
+          format: uint64
+          description: 更新者のユーザーID
+      required:
+        - tag_id
+        - tag_name
+        - created_at
+        - updated_at
+    TagCreateRequest:
+      type: object
+      properties:
+        tag_name:
+          type: string
+          description: タグ名
+          example: golang
+      required:
+        - tag_name

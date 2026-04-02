@@ -1,0 +1,65 @@
+post:
+  operationId: createSnippet
+  summary: スニペット作成
+  description: 新しいコードスニペットを作成します
+  tags:
+    - Snippets
+  security: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/snippets/SnippetCreateRequest.yaml'
+  responses:
+    '201':
+      description: 作成成功
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/OKResponse.yaml'
+    '400':
+      description: バリデーションエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+
+put:
+  operationId: updateSnippet
+  summary: スニペット更新
+  description: 既存のコードスニペットを更新します
+  tags:
+    - Snippets
+  security: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/snippets/SnippetUpdateRequest.yaml'
+  responses:
+    '200':
+      description: 更新成功
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/OKResponse.yaml'
+    '400':
+      description: バリデーションエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/Error.yaml'
