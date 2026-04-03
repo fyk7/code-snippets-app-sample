@@ -1,0 +1,5 @@
+package: generated
+output: app/interface_adapter/handler/generated/server.gen.go
+generate:
+  models: false
+  echo-server: true

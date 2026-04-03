@@ -10,6 +10,7 @@ import (
 	"github.com/fyk7/code-snippets-app/app/config"
 	"github.com/fyk7/code-snippets-app/app/di"
 	_handler "github.com/fyk7/code-snippets-app/app/interface_adapter/handler"
+	"github.com/fyk7/code-snippets-app/app/interface_adapter/handler/generated"
 	_middleware "github.com/fyk7/code-snippets-app/app/interface_adapter/handler/middleware"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/sync/errgroup"
@@ -27,9 +28,9 @@ func main() {
 	mw := _middleware.InitMiddleware()
 	e.Use(mw.CORS)
 
-	// Register handlers.
-	_handler.NewSnippetHandler(e, serviceContainer.SnippetService)
-	_handler.NewTagHandler(e, serviceContainer.TagService)
+	// Register handlers via OpenAPI-generated ServerInterface.
+	srv := _handler.NewServer(serviceContainer.SnippetService, serviceContainer.TagService)
+	generated.RegisterHandlers(e, srv)
 
 	// Graceful shutdown with signal handling
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

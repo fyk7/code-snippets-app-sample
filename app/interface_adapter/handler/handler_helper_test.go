@@ -3,11 +3,13 @@ package interface_adapter
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/fyk7/code-snippets-app/app/domain/model"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -49,11 +51,13 @@ func TestHandleError_UnknownError(t *testing.T) {
 }
 
 func TestHandleError_ValidationError(t *testing.T) {
-	err := ValidRequest(struct {
+	v := validator.New()
+	err := v.Struct(struct {
 		Name string `validate:"required"`
 	}{})
+	wrapped := fmt.Errorf("failed to validate: %w", err)
 
-	code, body := callHandleError(err)
+	code, body := callHandleError(wrapped)
 	assert.Equal(t, http.StatusBadRequest, code)
 	assert.Contains(t, body.Messages[0], "validation error")
 }

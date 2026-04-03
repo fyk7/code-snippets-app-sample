@@ -24,6 +24,11 @@ init:
 vet:
 	go vet ./...
 
+generate:
+	npx @redocly/cli bundle openapi/openapi.yaml -o openapi/bundled.yaml
+	oapi-codegen --config oapi-codegen-types.yaml openapi/bundled.yaml
+	oapi-codegen --config oapi-codegen-server.yaml openapi/bundled.yaml
+
 run:
 	go run ./cmd
 
@@ -43,4 +48,4 @@ lint-prepare:
 lint:
 	./bin/golangci-lint run ./...
 
-.PHONY: test test-short test-coverage local-build clean init vet run docker-build db-start db-stop lint-prepare lint
+.PHONY: test test-short test-coverage local-build clean init vet generate run docker-build db-start db-stop lint-prepare lint
